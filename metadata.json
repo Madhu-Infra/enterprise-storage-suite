@@ -1,0 +1,6 @@
+{
+  "name": "StorageAdmin Hub",
+  "description": "Enterprise storage operations portal and SAN administration handbook for NetApp ONTAP, Dell EMC PowerMax, Cisco MDS, and Brocade FOS.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
