@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -29,17 +30,13 @@ jobs:
         with:
           node-version: 20
           cache: 'npm'
-          cache-dependency-path: enterprise-storage-suite/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Install Dependencies
-        run: |
-          cd enterprise-storage-suite
-          npm ci
+        run: npm ci
 
       - name: Build Production Site
-        run: |
-          cd enterprise-storage-suite
-          npm run build
+        run: npm run build
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -47,7 +44,7 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: enterprise-storage-suite/dist
+          path: dist
 
       - name: Deploy to GitHub Pages
         id: deployment
