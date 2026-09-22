@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Database,
   Zap,
@@ -20,6 +20,20 @@ interface VendorViewProps {
   vendor: StorageVendor;
   onSelectTab?: (vendor: StorageVendor) => void;
 }
+
+const DEFAULT_PARAMS: Record<string, string> = {
+  svm_name: 'svm_prod_01',
+  vol_name: 'vol_app_data',
+  size: '+200GB',
+  sid: '1234',
+  sg_name: 'SG_PROD_APP',
+  vsan_id: '100',
+  interface: '1/12',
+  alias_host: 'HBA_ESX01_P1',
+  pwwn_host: '20:00:00:25:b5:11:aa:01',
+  alias_tgt: 'ST_TGT_1A',
+  pwwn_tgt: '50:00:09:73:a0:12:34:01',
+};
 
 const VENDOR_CONFIG: Record<
   StorageVendor,
@@ -79,20 +93,23 @@ export const VendorView: React.FC<VendorViewProps> = ({ vendor }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
-  // Dynamic parameter state for live command substitution
-  const [paramOverrides, setParamOverrides] = useState<Record<string, string>>({
-    svm_name: 'svm_prod_01',
-    vol_name: 'vol_app_data',
-    size: '+200GB',
-    sid: '1234',
-    sg_name: 'SG_PROD_APP',
-    vsan_id: '100',
-    interface: '1/12',
-    alias_host: 'HBA_ESX01_P1',
-    pwwn_host: '20:00:00:25:b5:11:aa:01',
-    alias_tgt: 'ST_TGT_1A',
-    pwwn_tgt: '50:00:09:73:a0:12:34:01',
+  // Dynamic parameter state with localStorage persistence
+  const [paramOverrides, setParamOverrides] = useState<Record<string, string>>(() => {
+    try {
+      const saved = localStorage.getItem('storage_hub_params');
+      return saved ? { ...DEFAULT_PARAMS, ...JSON.parse(saved) } : DEFAULT_PARAMS;
+    } catch {
+      return DEFAULT_PARAMS;
+    }
   });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('storage_hub_params', JSON.stringify(paramOverrides));
+    } catch {
+      // Ignore write errors
+    }
+  }, [paramOverrides]);
 
   const commands = useMemo(() => {
     return COMMANDS_DATA.filter((c) => c.vendor === vendor);

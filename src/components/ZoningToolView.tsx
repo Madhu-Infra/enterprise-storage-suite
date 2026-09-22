@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Sliders,
   Copy,
@@ -14,29 +14,75 @@ import {
 
 type SwitchSyntax = 'brocade' | 'cisco';
 
+const DEFAULT_ZONING_STATE = {
+  syntax: 'brocade' as SwitchSyntax,
+  hostName: 'esx-cluster01-host01',
+  hostWwpnA: '20:00:00:25:b5:11:aa:01',
+  hostWwpnB: '20:00:00:25:b5:11:aa:02',
+  storageName: 'pmax-01',
+  targetWwpnA: '50:00:09:73:a0:12:34:01',
+  targetWwpnB: '50:00:09:73:a0:12:34:02',
+  vsanA: '100',
+  vsanB: '200',
+  cfgNameA: 'CFG_FABRIC_A',
+  cfgNameB: 'CFG_FABRIC_B',
+};
+
 export const ZoningToolView: React.FC = () => {
-  const [syntax, setSyntax] = useState<SwitchSyntax>('brocade');
+  const [savedConfig] = useState(() => {
+    try {
+      const stored = localStorage.getItem('storage_hub_zoning');
+      return stored ? { ...DEFAULT_ZONING_STATE, ...JSON.parse(stored) } : DEFAULT_ZONING_STATE;
+    } catch {
+      return DEFAULT_ZONING_STATE;
+    }
+  });
+
+  const [syntax, setSyntax] = useState<SwitchSyntax>(savedConfig.syntax);
   const [zoningMode, setZoningMode] = useState<'sist' | 'simt'>('sist');
 
   // Input states
-  const [hostName, setHostName] = useState('esx-cluster01-host01');
-  const [hostWwpnA, setHostWwpnA] = useState('20:00:00:25:b5:11:aa:01');
-  const [hostWwpnB, setHostWwpnB] = useState('20:00:00:25:b5:11:aa:02');
+  const [hostName, setHostName] = useState(savedConfig.hostName);
+  const [hostWwpnA, setHostWwpnA] = useState(savedConfig.hostWwpnA);
+  const [hostWwpnB, setHostWwpnB] = useState(savedConfig.hostWwpnB);
 
-  const [storageName, setStorageName] = useState('pmax-01');
-  const [targetWwpnA, setTargetWwpnA] = useState('50:00:09:73:a0:12:34:01');
-  const [targetWwpnB, setTargetWwpnB] = useState('50:00:09:73:a0:12:34:02');
+  const [storageName, setStorageName] = useState(savedConfig.storageName);
+  const [targetWwpnA, setTargetWwpnA] = useState(savedConfig.targetWwpnA);
+  const [targetWwpnB, setTargetWwpnB] = useState(savedConfig.targetWwpnB);
 
   // Cisco VSANs
-  const [vsanA, setVsanA] = useState('100');
-  const [vsanB, setVsanB] = useState('200');
+  const [vsanA, setVsanA] = useState(savedConfig.vsanA);
+  const [vsanB, setVsanB] = useState(savedConfig.vsanB);
 
   // Brocade Cfg / Cisco Zoneset names
-  const [cfgNameA, setCfgNameA] = useState('CFG_FABRIC_A');
-  const [cfgNameB, setCfgNameB] = useState('CFG_FABRIC_B');
+  const [cfgNameA, setCfgNameA] = useState(savedConfig.cfgNameA);
+  const [cfgNameB, setCfgNameB] = useState(savedConfig.cfgNameB);
 
   // Copy feedback state
   const [copiedSection, setCopiedSection] = useState<string | null>(null);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(
+        'storage_hub_zoning',
+        JSON.stringify({
+          syntax,
+          hostName,
+          hostWwpnA,
+          hostWwpnB,
+          storageName,
+          targetWwpnA,
+          targetWwpnB,
+          vsanA,
+          vsanB,
+          cfgNameA,
+          cfgNameB,
+        })
+      );
+    } catch {
+      // Ignore write errors
+    }
+  }, [syntax, hostName, hostWwpnA, hostWwpnB, storageName, targetWwpnA, targetWwpnB, vsanA, vsanB, cfgNameA, cfgNameB]);
 
   // Clean and validate WWN
   const validateWwn = (wwn: string) => {
