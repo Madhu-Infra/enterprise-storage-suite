@@ -1,0 +1,5 @@
+:HL["/enterprise-storage-suite/portfolio/_next/static/chunks/3nmv_wg481m1s.css","style"]
+:HL["/enterprise-storage-suite/portfolio/_next/static/chunks/1bd5pv8zj2p8m.css","style"]
+:HL["/enterprise-storage-suite/portfolio/madhu.jpg","image",{"fetchPriority":"high"}]
+1:[["children",{"s":"__PAGE__","h":160}]]
+0:{"b":"UfWw2t2Tz76RUGrvMcf07","t":{"t":{"s":"","h":80,"c":"$Q1"}}}
